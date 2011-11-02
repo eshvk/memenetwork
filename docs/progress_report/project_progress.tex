@@ -1,0 +1,173 @@
+
+\documentclass{acm_proc_article-sp}
+
+\begin{document}
+%
+% --- Author Metadata here ---
+%\CopyrightYear{2007} % Allows default copyright year (20XX) to be over-ridden - IF NEED BE.
+%\crdata{0-12345-67-8/90/01}  % Allows default copyright data (0-89791-88-6/97/05) to be over-ridden - IF NEED BE.
+% --- End of Author Metadata ---
+
+\title{Meme Tracker}
+\subtitle{Social Network Generation and Ranking}
+%
+% You need the command \numberofauthors to handle the 'placement
+% and alignment' of the authors beneath the title.
+%
+% For aesthetic reasons, we recommend 'three authors at a time'
+% i.e. three 'name/affiliation blocks' be placed beneath the title.
+%
+% NOTE: You are NOT restricted in how many 'rows' of
+% "name/affiliations" may appear. We just ask that you restrict
+% the number of 'columns' to three.
+%
+% Because of the available 'opening page real-estate'
+% we ask you to refrain from putting more than six authors
+% (two rows with three columns) beneath the article title.
+% More than six makes the first-page appear very cluttered indeed.
+%
+% Use the \alignauthor commands to handle the names
+% and affiliations for an 'aesthetic maximum' of six authors.
+% Add names, affiliations, addresses for
+% the seventh etc. author(s) as the argument for the
+% \additionalauthors command.
+% These 'additional authors' will be output/set for you
+% without further effort on your part as the last section in
+% the body of your article BEFORE References or any Appendices.
+
+\numberofauthors{3} %  in this sample file, there are a *total*
+% of EIGHT authors. SIX appear on the 'first-page' (for formatting
+% reasons) and the remaining two appear in the \additionalauthors section.
+%
+\author{
+% You can go ahead and credit any number of authors here,
+% e.g. one 'row of three' or two rows (consisting of one row of three
+% and a second row of one, two or three).
+%
+% The command \alignauthor (no curly braces needed) should
+% precede each author name, affiliation/snail-mail address and
+% e-mail address. Additionally, tag each line of
+% affiliation/address with \affaddr, and tag the
+% e-mail address with \email.
+%
+% 1st. author
+\alignauthor
+Eshwaran Vijaya Kumar\\
+       \affaddr{Dept. of Electrical \& Computer Engineering}\\
+       \affaddr{The University of Texas at Austin}\\
+       \email{eshwaran@utexas.edu}
+       \alignauthor
+Saral  Jain\\
+   \affaddr{Dept. of Computer Science}\\
+       \affaddr{The University of Texas at Austin}\\
+       \email{saral@cs.utexas.edu}
+        \alignauthor
+       Prateek Maheshwari \\
+  \affaddr{Dept. of Computer Science}\\
+  \affaddr{The University of Texas at Austin}\\
+  \email{prateekm@utexas.edu}
+}
+
+
+% There's nothing stopping you putting the seventh, eighth, etc.
+% author on the opening page (as the 'third row') but we ask,
+% for aesthetic reasons that you place these 'additional authors'
+% in the \additional authors block, viz.
+\date{02 November 2011}
+% Just remember to make sure that the TOTAL number of authors
+% is the number that will appear on the first page PLUS the
+% number that will appear in the \additionalauthors section.
+
+\maketitle
+% A category with the (minimum) three required fields
+\category{H.4}{Information Systems Applications}{Machine Learning, Text Mining}
+%A category including the fourth, optional field follows...
+
+\terms{Machine Learning, Text Mining, Mapreduce}
+
+\section{Introduction}
+This document serves two purposes: We describe and illustrate our project, explain progress made and talk about challenges that we are currently facing and steps that we plan to take to overcome those. We also illustrate a plan of action to tie up the several components of the project together. 
+
+A meme is a short phrase which originates, travels and mutates in a social network. The meme is a potentially undiscovered path through which information flow takes place in a social network. We would like to automatically extract short phrases which are present in some possibly mutated form in a group of blog posts, group similar phrases together to identify nodes (blog posts) that share edges. This meme-graph is then evaluated as follows: We compare the performance of the meme-graph as a ranking mechanism when compared to a baseline social-graph, the hyperlink graph exploited successfully by Google. 
+
+\section{Meme-Graph Generation}
+\subsection{Extraction of a Meme}
+The first part of the problem is that of automatically identifying and tracking memes from a corpus of documents that are potentially linked to each other by memes. There are several ways to define a meme \cite{leskovec2009meme},   \cite{kolak2008generating} which impose fundamental assumptions on the design of the entire system. 
+
+Kolak and Schilt \cite{kolak2008generating} describe a scalable technique for generating quotations that are shared between pairs of documents that we employ for the meme generation portion. We describe this in the next section and talk about implementation challenges that we face.
+
+\subsubsection{Sequence Generation Overview}
+Given a ``clean'' corpus of documents (blog posts), we can generate key-value pairs where a key is a contiguous sequence of characters and value is a pair of documents that contains that key as follows: We first parse each blog posts and generate shingles composed of a few tokens where every token is a space delimited collection of characters. These shingles are used to build an inverted index where the keys are shingles and value is a bucket list. The bucket list is a data structure that is an array of buckets where each bucket contains a unique identifier for a blog post and a position marker which identifies the start of the shingle in the document. The next phase is to merge shingles that are contiguous to each other in a pair of document. This is done as follows: We walk through each document, generate all the shingles that exist in that document. We create a set of sequences as follows: We start from the first shingle in the source document and create a set of ``active'' sequences where each sequence has a unique identifier marking a document that shares this shingle and the position where this shingle is present in the document. Then for successive shingles, we iteratively walk through the sequences to determine if the next potential shingle in a given sequence is present in the successive shingle's bucket list and decide to either conclude the sequence or keep continuing the building of the sequence based on that result. 
+
+\subsubsection{Implementation and Challenges}
+The first implementation challenge that we have worked on is the cleaning of the dataset to strip away HTML tags. We had initially built an in-memory python processor which utilized beautiful soup to strip away HTML. This unfortunately turned out to be too slow (even though all that needs to be done is a linear pass through the dataset) and we instead built code to do this in MapReduce using an equivalent library. 
+
+ The second challenge that we are currently working on is trying to efficiently scale the sequence generation phase in Map Reduce. Our current approach involves a sequence of two jobs: The first job constructs shingles from the cleaned up text and generates a shingle table where the values are a list of buckets. In our second job, the map phase involves transmitting as key a bucket and value the entire bucket list. A partitioner ensures that all the keys corresponding to a single document go to a single Reduce task. Within a single reducer, we compute all possible sequences that are shared by a ``source document'' which was the key in the reducer and all other documents. 
+ 
+ There are several issues with this approach that emerged (and that we are still working on) as we were trying to scale it up: We faced an initial issue with an overwhelming large number of out of memory errors. Our first approach had utilized text strings to represent the bucket lists, we have optimized that by using array of pairs which are wrappers around Integers. The next issue is the overwhelmingly large amount of intermediate data that is generated in the form of the bucket lists themselves: This we are trying to solve by using a splittable compression technique such as LZO. Since most of our testing is done on Amazon EC2, we predict that developing the AMI to sort this issue should be doable within the next week. 
+ 
+ \subsection{Grouping Of Sequences}
+ An intermediate step that leads towards generation of an adjacency list from a list of pairs is to group ``similar'' memes. Kolak and Schilt \cite{kolak2008generating} describe an approach that is supposed to take matches between portions of a meme (sequences) to generate a group of sequences that share some partial overlap and can be merged to form a single meme. The problem with their approach as is currently described is that it provides a way for a 
+ 
+  involves utilizing partial matches of a given sequence
+ 
+ There are several approaches that we have been thinking about doing the grouping. However, scalability issues have forced constraints on the approach that we plan to take. 
+ 
+ 
+  
+
+
+Leskovec et. al.\cite{leskovec2009meme} make two fundamental assumptions which we feel impose too much of a restriction on the latent network generated: 1) They assume that every meme is demarcated by quotation marks. While, this assumption might be true for a subset of the memes, it would result in a system that fails to capture a large number of memes that don't possess this characteristic. 2) They assume that the evolution of a meme over time can be tracked by the increase in length of the meme. It is not clear why this assumption should be true in general, or why the inverse shouldn't happen. Since we have temporal information, we would like a system that takes that into account. Kolak and Schilit \cite{kolak2008generating} approach a similar problem which can be applied to solve the problem of meme extraction: They mine quotations from books and use them as a way of generating a cross reference across books. However, we feel that their technique for string matching can be improved upon by incorporating more sophisticated approaches for calculating string similarity, like vector space models or language models.
+
+\subsection{Basic String Matching Model}
+We first describe the basic string matching algorithm that we plan to utilize as a first step of meme graph generation. This is largely based upon work in \cite{kolak2008generating}. The first step is to clean up the text by removing HTML tags and removing sequences that appear so frequently in the corpus that they might act as noise, e.g., text that is part of the structure of a blog. We then generate shingles from each document and insert the shingles into a shingle table which acts like a dictionary with keys as shingles and values as a list of buckets. Each bucket contains a document ID and position in the document where the shingle appears. We now define a sequence to be a concatenation of shingles that occur consecutively and are shared between a pair of documents. We walk through the shingle table simultaneously building sequences. This can be performed in a distributed fashion using MapReduce and results in pairs of documents and sequences shared between them. 
+
+
+
+\subsubsection{Grouping}
+The next stage is to identify all variants of a single meme and identify the latent social network whose nodes are blog posts and edges are the common meme shared between them. As a first pass, we can try to handle typographical errors, sentence breaks and short changes in the sentence structure using a heuristic that was utilized in \cite{kolak2008generating}. For any given node (post), find all nodes that share a portion or all of the meme; Use this information to discover groups of memes that should ideally be one meme. This allows us to generate the meme-graph which can also be directed based on temporal information.
+
+\subsection{More Sophisticated Extraction Methods}
+We feel that the basic string matching algorithm can be improved upon by a number of techniques. One possible approach is to use vector space models (e.g., cosine similarity) to calculate similarity on individual sentences; this will tell us if two sentences are similar without a substring matching. The motivation is to find memes that might be different by simple transpositions of phrases or words, or differ by a few words at most.
+
+Language models provide a statistically sound framework for text modeling and have been popularly used in speech recognition, topic modeling, machine translation etc \cite{ponte1998language}. As another option for calculating string similarity, given the language model of sentence 1, we can try to calculate how likely it is to generate sentence 2, and consider the sentences similar if the generation probability is high.
+
+Another potential approach would be to perform direct text clustering on sentences from a collection of documents to find a set of similar sentences and then construct a shingle table using the documents the sentences belong to.
+
+We will explore these intuitions further in conjunction with insights obtained from existing research in string similarity\cite{achananuparp2008evaluation}, quotation mining and other related areas such as plagiarism detection \cite{kim2009efficient}. 
+
+\section{Graph Clustering}
+
+Once the latent meme-graph has been generated, we first collapse all nodes for posts from the same blog into a single node for that blog. After this step we have reduced the social graph of posts to a social graph of blogs. We then try to analyze the structure of the graph(s) by clustering the nodes using either \cite{blondel2008fast} or \cite{tang2009clustering}. This will help us identify cliques of blogs that have a high information flow between them due to frequent exchanges of memes, and therefore often participate in discussions about the same issues. The algorithm discussed in \cite{blondel2008fast} is a multi-stage algorithm where each node is initially put into its own community and we iteratively merge communities until the objective function defined for the graph attains its local optimum value. Although we have experimentally tested the scalability of the algorithm in another context using large social networks, it would be interesting to try to develop an equivalent Map-Reduce variant of the algorithm. Alternatively, we could also utilize the libScotch library \cite{pellegrini2008scotch} to perform graph clustering in a distributed (albeit non-MapReduce) fashion.
+\section{Project Schedule}
+We give a brief overview of the organization of the project. We invite the interested reader to refer to the pivotal tracker for the project for more details. 
+\begin{description}
+\item[Data Preprocessing]The data will have to be initially pre-processed using a HTML parser and be converted to JSON. We have sequential code performing this task right now on a subset of the data. We would like to extend this code and construct a MapReduce version using Python Streaming. 
+\item[Basic String Matching Algorithm] We would like to implement the basic string matching algorithm outlined in \cite{kolak2008generating}. This stage will be split into two components: We would first like to develop a sequential version of the algorithm and then extend it further to develop a MapReduce variant. This stage will be used to identify the latent social graph that is generated by exact string matches. Once this is complete, we can optimize this further to perform preliminary groupings in the fashion developed in \cite{kolak2008generating}. Another issue we have not sorted out at this stage is how much of the grouping can be done in a distributed fashion. 
+\item [Sophisticated String Matching] There are several interesting threads that we plan to follow in this phase. We could improve upon the grouping in the previous stage by using a Vector Space Model to try to improve the grouping. This should be easily doable in a MapReduce fashion. Some other interesting approaches would be to utilize language models to improve upon the basic string matching that is being done initially. 
+This phase will also involve exploring MapReduce models to build these models. 
+\item [Graph Clustering] As a first step, we have sequential code available from the authors of \cite{blondel2008fast}. Depending on the size of the social networks generated, we  would have to explore whether or not, we would have to write a MapReduce variant of this algorithm in order to perform clustering. Another issue with this approach is trying to optimally merge graphs generated by different memes in order to construct one single meme-graph. Depending on which of these tasks proves to be harder, we could switch to using a multi-graph approach as outlined in  \cite{tang2009clustering}.
+\end{description}
+
+
+
+%\end{document}  % This is where a 'short' article might terminate
+
+
+
+%
+% The following two commands are all you need in the
+% initial runs of your .tex file to
+% produce the bibliography for the citations in your paper.
+\bibliographystyle{abbrv}
+\bibliography{project_proposal}  % sigproc.bib is the name of the Bibliography in this case
+% You must have a proper ".bib" file
+%  and remember to run:
+% latex bibtex latex latex
+% to resolve all references
+%
+% ACM needs 'a single self-contained file'!
+%
+%APPENDICES are optional
+%\balancecolumns
+\end{document}
