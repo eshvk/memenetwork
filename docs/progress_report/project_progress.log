@@ -1,4 +1,4 @@
-This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2011.8.28)  3 NOV 2011 01:33
+This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2011.8.28)  3 NOV 2011 09:12
 entering extended mode
  %&-line parsing enabled.
 **project_progress.tex
@@ -251,12 +251,7 @@ Overfull \hbox (9.94414pt too wide) in paragraph at lines 123--124
  []
 
 [2] [3]
-Overfull \hbox (6.48804pt too wide) in paragraph at lines 165--165
-[]\secfnt EXPERIMENTAL SET-TINGS AND EVAL-
- []
-
-
-Overfull \hbox (6.8744pt too wide) in paragraph at lines 172--173
+Overfull \hbox (6.8744pt too wide) in paragraph at lines 174--175
 []\T1/aer/m/n/9 Further the user can also com-bine mul-ti-ple terms with Boolea
 n
  []
@@ -264,38 +259,34 @@ n
 <graph.png, id=18, 364.36125pt x 213.04594pt>
 File: graph.png Graphic file (type png)
  <use graph.png>
-Overfull \hbox (1.84842pt too wide) in paragraph at lines 176--177
+Overfull \hbox (1.84842pt too wide) in paragraph at lines 178--179
 [][] 
  []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-<eqn.png, id=19, 242.40562pt x 71.51718pt>
+ [4 <./graph.png>] <eqn.png, id=24, 242.40562pt x 71.51718pt>
 File: eqn.png Graphic file (type png)
  <use eqn.png>
-Overfull \hbox (2.40501pt too wide) in paragraph at lines 191--192
+Overfull \hbox (2.40501pt too wide) in paragraph at lines 193--194
 [][] 
- []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [4 <./graph.png>]
-Overfull \hbox (12.17555pt too wide) in paragraph at lines 235--235
-\T1/aer/m/n/9 gen-er-ated by in-fer-ring tem-po-ral links on ex-tracted memes. 
-
  []
 
 [5 <./eqn.png>]
-Overfull \hbox (12.17555pt too wide) in paragraph at lines 239--239
+Overfull \hbox (12.17555pt too wide) in paragraph at lines 238--238
 \T1/aer/m/n/9 gen-er-ated by in-fer-ring tem-po-ral links on ex-tracted memes. 
 
  []
 
 
-Overfull \hbox (13.03995pt too wide) in paragraph at lines 243--243
+Overfull \hbox (12.17555pt too wide) in paragraph at lines 242--242
+\T1/aer/m/n/9 gen-er-ated by in-fer-ring tem-po-ral links on ex-tracted memes. 
+
+ []
+
+
+Overfull \hbox (13.03995pt too wide) in paragraph at lines 246--246
 []\T1/aer/m/n/9 Implementation of new ranked or-der-ing com-bin-ing PageR-
  []
 
@@ -316,7 +307,7 @@ texmf/fonts/type1/bluesky/cm/cmti9.pfb></usr/share/texmf/fonts/type1/bluesky/cm
 /cmtt9.pfb></usr/share/texmf/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/te
 xmf/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texmf/fonts/type1/urw/times
 /utmb8a.pfb>
-Output written on project_progress.pdf (6 pages, 129537 bytes).
+Output written on project_progress.pdf (6 pages, 127676 bytes).
 PDF statistics:
  62 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 131072)
