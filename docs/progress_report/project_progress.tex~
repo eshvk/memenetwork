@@ -141,7 +141,7 @@ We will implement and evaluate some of the lexical, probabilistic and semantic s
 The procedure for generating similarity rankings for memes can be implemented as a MapReduce job that takes each pair to be evaluated as the input. The Map task computes the similarity score for the pair and emits a (<string 1, string 2>, score) pair. We use a partitioner and a group comparator to combine and sort the similarity scores for all strings with a particular string. The reducer then recieves and emits each string and a list of strings similar to it, sorted by their similarity scores. The final output of the job is then, for each meme, a sorted list of memes that are most similar to it.
 
 \subsection{Grouping}
-The output of the previous phase is, for each string, a ranking of similar strings by similarity scores. Using this output we can create a grouping of similar memes by computing a closure on top n similar strings by the following algorithm:
+The output of the previous phase is, for each string, a ranking of similar strings by similarity scores. Using this output we can create a grouping of similar memes by computing a closure on top n similar strings in the following way:
 \begin{enumerate}
 \item Select a string Si whose group is to be computed. Choose a value of n. Create an empty grouping set.
 \item For string Si, select the top n strings ranked by their similarity to Si. Let these strings be Sij, 1 <= j <= n. 

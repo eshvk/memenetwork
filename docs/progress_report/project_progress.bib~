@@ -107,6 +107,14 @@
   year={2007},
   organization={ACM}
 }
+@article{achananuparp2008evaluation,
+  title={The evaluation of sentence similarity measures},
+  author={Achananuparp, P. and Hu, X. and Shen, X.},
+  journal={Data Warehousing and Knowledge Discovery},
+  pages={305--316},
+  year={2008},
+  publisher={Springer}
+}
 @article{metzler2007similarity,
   title={Similarity measures for short segments of text},
   author={Metzler, D. and Dumais, S. and Meek, C.},

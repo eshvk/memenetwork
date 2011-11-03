@@ -1,0 +1,48 @@
+This is BibTeX, Version 0.99c (Web2C 7.5.6)
+The top-level auxiliary file: project_progress.aux
+The style file: abbrv.bst
+Database file #1: project_progress.bib
+Warning--empty journal in littlestone1989weighted
+Warning--empty journal in page1999pagerank
+You've used 12 entries,
+            2118 wiz_defined-function locations,
+            564 strings with 5496 characters,
+and the built_in function-call counts, 4185 in all, are:
+= -- 418
+> -- 179
+< -- 6
++ -- 76
+- -- 58
+* -- 244
+:= -- 665
+add.period$ -- 38
+call.type$ -- 12
+change.case$ -- 61
+chr.to.int$ -- 0
+cite$ -- 14
+duplicate$ -- 181
+empty$ -- 334
+format.name$ -- 58
+if$ -- 911
+int.to.chr$ -- 0
+int.to.str$ -- 12
+missing$ -- 14
+newline$ -- 62
+num.names$ -- 24
+pop$ -- 90
+preamble$ -- 1
+purify$ -- 52
+quote$ -- 0
+skip$ -- 143
+stack$ -- 0
+substring$ -- 243
+swap$ -- 57
+text.length$ -- 6
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 42
+warning$ -- 2
+while$ -- 41
+width$ -- 14
+write$ -- 127
+(There were 2 warnings)
