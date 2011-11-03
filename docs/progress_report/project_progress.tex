@@ -118,9 +118,6 @@ The first implementation challenge that we have worked on is the cleaning of the
  \subsection{Grouping Of Sequences}
  An intermediate step that could potentially create a more richer graph structure is to generate a ``Super-meme'' that takes matches between portions of a meme (sequences) to generate a group of sequences that share some partial overlap and can be merged to form a single meme. The approach utilized in Kolak and Schilt \cite{kolak2008generating} is as follows: For a given document, order all the sequences by start position in the document. We then initialize a group that contains the first sequence. We then iteratively merge any sequence that has an overlap with the group's current sequence and add all the corresponding documents into the group. A new group is created when we find that the current sequence has no overlap with the previous group. The end result of this Map Reduceable phase is to create groups as keys and values as an array of document identifiers that share that group. 
  
- \subsection{Graph Generation}
- Irrespective of whether grouping is done or not, we generate an adjacency list as follows: We take a pair or array of documents and impose directed edges between them. The direction of the edge is determined by the time stamp of the blog. We expect that this will be possible in an in-memory program where an index that contains document ID and time stamp is loaded and utilized to generate the edge directions. 
-
 \section{Direct String Similarity}
 The approach taken by Kolak and Schilit, i.e., generating and extending shingles and then grouping the final results, has a few drawbacks. For one, they set the minimum size of shingles to 8 to reduce the amount of intermediate output. A long shingle length would require sentences containing meme to have a significant and exact overlap, an assumption that is not necessarily true in practice. For example, the following two sentences have the same information content, but would not be detected by the shingles approach for a shingle length greater than 5 (corresponding to the ngram "at the Intel Developer Forum"). One way to overcome this limitation would be to use a smaller minimum size for shingles. However, setting the shingle size lower would increase the amount of intermediate output and the size of each bucket list, and will also increase the amount of time spent extending the shingles for each document in the next phase. Also, in the shingling approach, we generate the shingles irrespective of sentence boundaries, which generates many redundant shingles. (Is this true?)
 
@@ -140,8 +137,29 @@ The experimental results from an analysis of the effect of ngram size used for s
 
 
 \subsection{Grouping}
-Grouping for string similarity
+The output of the previous phase is, for each string, a ranking of similar strings by similarity scores. Using this output we can create a grouping of similar memes by computing a closure on top n similar strings in the following way:
 
+1. Select a string Si whose group is to be computed. Choose a value of n. Create an empty grouping set.
+2. For string Si, select the top n strings ranked by their similarity to Si. Let these strings be Sij, 1 <= j <= n. 
+3. If Sim(Sij, Si) > a threshold, add Sij to the grouping set. Mark Si as visited.
+4. If all strings in the set are visited, stop. Else, for each string Sij in the set not yet visited, repeat step 2.
+
+The threshold is required to remove strings with low similarity scores from groups. If we repeat this process for each string, we have a grouping of the memes discovered in the first phase.
+
+\section{Graph Generation}
+[Insert discussion about the possible effect of grouping on meme graph and pagerank here]
+
+Depending on whether or not we group similar memes together, we can generate the meme graph in two different ways. Both approaches are discussed below.
+
+\subsection{With Grouping}
+With either of the two approaches for discovering memes, we have two ways of constructing the meme graphs for computing the pagerank. With both approaches, we can either group similar memes together, or we can use individual memes to induce a graph.
+
+If we have a grouping of similar memes, we construct the edges between blog posts that contain those memes, and the direction of the edge is determined by the time stamps of the blog posts. The edges are directed from the post that appears earlier to the post that appears later, following that idea that the newer post borrows from the older one, and hence is less important. From a grouping of posts that contain similar memes, we construct a single directed path from the newest post in the group to succesively older ones. (Should we create an edge from a new post to ALL other older posts, following the idea that oldest will have the most precedence (since pagerank gives emphasis to incoming links, and reduces emphasis for outgoing links), followed by the 2nd oldest and so on? If we have a single edge than the weights computed by page rank would be very small for intermediate posts since each intermediate post would have one inlink and out outlink for a meme. On the other hand, each post can contain multiple memes, although that would be much rarer).
+
+Another approach to construction a graph is not grouping the memes together and instead creating a single edge for each meme string, directed from the newer post to the older post that shares that string.
+
+Irrespective of whether grouping is done or not, we generate an adjacency list as follows: We take a pair or array of documents and impose directed edges between them. The direction of the edge is determined by the time stamp of the blog. We expect that this will be possible in an in-memory program where an index that contains document ID and time stamp is loaded and utilized to generate the edge directions. 
+ 
 %\end{document}  % This is where a 'short' article might terminate
 
 
