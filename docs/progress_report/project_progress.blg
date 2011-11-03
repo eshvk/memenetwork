@@ -1,7 +1,15 @@
-This is BibTeX, Version 0.99c (Web2C 7.5.6)
+This is BibTeX, Version 0.99c (Web2C 7.5.7)
 The top-level auxiliary file: project_progress.aux
 The style file: abbrv.bst
 Database file #1: project_progress.bib
+Repeated entry---line 73 of file project_progress.bib
+ : @article{achananuparp2008evaluation
+ :                                    ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 129 of file project_progress.bib
+ : @book{clarke2006lipstick
+ :                         ,
+I'm skipping whatever remains of this entry
 Warning--empty journal in littlestone1989weighted
 Warning--empty journal in page1999pagerank
 You've used 12 entries,
@@ -45,4 +53,4 @@ warning$ -- 2
 while$ -- 41
 width$ -- 14
 write$ -- 127
-(There were 2 warnings)
+(There were 2 error messages)
