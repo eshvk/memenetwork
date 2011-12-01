@@ -24,17 +24,17 @@ Mapper <Text, SequenceArrayWritable, Text, MemeArrayWritable> {
         while (ii < value.size()) {
             Sequence currSequence = value.get(ii);
             if ((activeSequence == null) ||
-                    (isLonger(activeSequence, currSequence)) ) {
+                    (isLongerAndStartsAtSamePos(activeSequence, currSequence)) ) {
                 activeSequence = currSequence;
                 currMeme.setIndex(activeSequence.getIndex());
                 currMeme.setLength(
                         computeNumUnigrams(activeSequence.getLength()));
                 currMeme.addDocID(activeSequence.getOtherID());
-            }
+                    }
             else if (checkOverlap(activeSequence, currSequence)) {
+                int overlap = findDiff(activeSequence, currSequence);
                 currMeme.setLength(
-                    currMeme.getLength() +
-                    computeNumUnigrams(currSequence.getLength()));
+                        currMeme.getLength() + overlap);
                 currMeme.addDocID(currSequence.getOtherID());
             }
             else {
@@ -48,19 +48,37 @@ Mapper <Text, SequenceArrayWritable, Text, MemeArrayWritable> {
             }
             ii++;
         }
+        if (currMeme != null) {
+            memeStore.add(currMeme);
+        }
         context.write(key, memeStore);
     }
     private int computeNumUnigrams(int numOverlappingShingles) {
         return numOverlappingShingles + shingleSize - 1;
     }
-    private boolean checkOverlap(Sequence a, Sequence b) {
+    private int computeLastIndex(Sequence a) {
         int aLastIndex = a.getIndex() + computeNumUnigrams(a.getLength()) - 1;
+        return aLastIndex;
+    }
+    private int findDiff(Sequence activeSequence, Sequence currSequence) {
+        int aLastIndex = computeLastIndex(activeSequence);
+        int cLastIndex = computeLastIndex(activeSequence);
+        if (aLastIndex >= cLastIndex) {
+            return 0;
+        }
+        else {
+            return cLastIndex - aLastIndex;
+        }
+    }
+    private boolean checkOverlap(Sequence a, Sequence b) {
+        int aLastIndex = computeLastIndex(a);
         if ( (b.getIndex() >= a.getIndex() ) && (b.getIndex() <= aLastIndex)) {
             return true;
         }
         return false;
     }
-    private boolean isLonger(Sequence activeSequence, Sequence otherSequence) {
+    private boolean isLongerAndStartsAtSamePos(Sequence activeSequence,
+            Sequence otherSequence) {
         int aIndex = activeSequence.getIndex();
         int oIndex = otherSequence.getIndex();
         int aLength = activeSequence.getLength();

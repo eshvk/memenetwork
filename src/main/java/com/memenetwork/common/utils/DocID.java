@@ -47,7 +47,7 @@ public class DocID implements Comparable<DocID> {
             else if (day < o.day) {
                 return -1;
             }
-            else {
+            else if (day > o.day) {
                 return 1;
             }
         }

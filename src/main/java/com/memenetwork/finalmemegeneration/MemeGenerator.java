@@ -9,6 +9,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
@@ -20,11 +21,14 @@ public class MemeGenerator extends Configured implements Tool {
         Configuration conf = new Configuration();
         conf.setInt("shinglesize", shingleSize);
         conf.setBoolean("mapred.output.compress", false);
+        conf.setInt("io.sort.mb", 1000);
+        conf.setInt("io.sort.factor", 30);
+        conf.setBoolean("mapred.map.tasks.speculative.execution", false);
         Job job = new Job(conf,"Meme Generator");
         job.setJarByClass(MemeGenerator.class);
         job.setMapperClass(MemeGeneratorMapper.class);
-        job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(MemeArrayWritable.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(MemeArrayWritable.class);
         job.setNumReduceTasks(0);
         job.setInputFormatClass(SequenceFileInputFormat.class);
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
@@ -32,7 +36,12 @@ public class MemeGenerator extends Configured implements Tool {
         if(fs.exists(outputPath) ){
             fs.delete(outputPath);
         }
-        FileInputFormat.addInputPath(job, inputPath);
+        for (FileStatus status: fs.listStatus(inputPath)) {
+            Path p = status.getPath();
+            if(!status.isDir() && !p.getName().startsWith("_")) {
+                FileInputFormat.addInputPath(job,p);
+            }
+        }
         FileOutputFormat.setOutputPath(job, outputPath);
         if (job.waitForCompletion(true)){
             return 0;

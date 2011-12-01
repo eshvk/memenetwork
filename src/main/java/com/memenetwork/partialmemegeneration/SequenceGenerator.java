@@ -9,6 +9,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
@@ -20,6 +21,10 @@ public class SequenceGenerator extends Configured implements Tool {
         int numReduceTasks = Integer.parseInt(args[2]);
         Configuration conf = new Configuration();
         conf.setBoolean("mapred.output.compress", false);
+        conf.setBoolean("mapred.compress.map.output", true);
+        conf.setInt("io.sort.mb", 1000);
+        conf.setInt("io.sort.factor", 30);
+        conf.setBoolean("mapred.reduce.tasks.speculative.execution", false);
         Job job = new Job(conf,"Sequence Generator");
         job.setJarByClass(SequenceGenerator.class);
         job.setMapperClass(SequenceGeneratorMapper.class);
@@ -36,7 +41,12 @@ public class SequenceGenerator extends Configured implements Tool {
         if(fs.exists(outputPath) ){
             fs.delete(outputPath);
         }
-        FileInputFormat.addInputPath(job, inputPath);
+        for (FileStatus status: fs.listStatus(inputPath)) {
+            Path p = status.getPath();
+            if(!status.isDir() && !p.getName().startsWith("_")) {
+                FileInputFormat.addInputPath(job,p);
+            }
+        }
         FileOutputFormat.setOutputPath(job, outputPath);
         if (job.waitForCompletion(true)){
             return 0;

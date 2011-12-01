@@ -4,6 +4,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -20,6 +21,10 @@ public class ShingleTableGenerator extends Configured implements Tool {
         int shingleSize = Integer.parseInt(args[3]);
         Configuration conf = new Configuration();
         conf.setBoolean("mapred.output.compress", false);
+        conf.setBoolean("mapred.compress.map.output", true);
+        conf.setInt("io.sort.mb", 1000);
+        conf.setInt("io.sort.factor", 30);
+        conf.setBoolean("mapred.reduce.tasks.speculative.execution", false);
         conf.setInt("shinglesize", shingleSize);
         Job job = new Job(conf,"Shingle Table Generator");
         job.setJarByClass(ShingleTableGenerator.class);
@@ -35,7 +40,12 @@ public class ShingleTableGenerator extends Configured implements Tool {
         if(fs.exists(outputPath) ){
             fs.delete(outputPath);
         }
-        FileInputFormat.addInputPath(job, inputPath);
+        for (FileStatus status: fs.listStatus(inputPath)) {
+            Path p = status.getPath();
+            if(!status.isDir() && !p.getName().startsWith("_")) {
+                FileInputFormat.addInputPath(job,p);
+            }
+        }
         FileOutputFormat.setOutputPath(job, outputPath);
         if (job.waitForCompletion(true)){
             return 0;

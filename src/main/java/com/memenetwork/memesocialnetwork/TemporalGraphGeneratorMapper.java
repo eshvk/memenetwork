@@ -22,6 +22,13 @@ Mapper <Text, MemeArrayWritable, Text, Text> {
         currKey = new Text();
         currValue = new Text();
     }
+   private String constructString(Queue <DocID> components) {
+        StringBuilder outString = new StringBuilder();
+        for (DocID component: components) {
+            outString.append(component.toString()).append("\t");
+        }
+        return outString.toString().trim();
+    }
     @Override public void map(Text key, MemeArrayWritable value, Context context)
         throws IOException, InterruptedException{
         sortedIDs.clear();
@@ -35,12 +42,11 @@ Mapper <Text, MemeArrayWritable, Text, Text> {
             }
         }
         sortedIDs.addAll(uniqueIDs);
-        while(sortedIDs.size() > 0) {
+        if (sortedIDs.size() > 0) {
             currKey.set(sortedIDs.poll().toString());
-            for (DocID currDocID : sortedIDs) {
-                currValue.set(currDocID.toString());
-                context.write(currKey, currValue);
-            }
+            String adjList = constructString(sortedIDs);
+            currValue.set(adjList);
+            context.write(currKey, currValue);
         }
     }
 }

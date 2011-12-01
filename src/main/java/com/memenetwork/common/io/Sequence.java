@@ -16,12 +16,6 @@ public class Sequence implements WritableComparable<Sequence> {
         this.otherID = otherID;
         this.otherIndex = otherIndex;
     }
-    @Override public String toString(){
-        String index = Integer.toString(this.index);
-        String length = Integer.toString(this.length);
-        String otherIndex = Integer.toString(this.otherIndex);
-        return index + ", " + length + " (" + otherID + ", " + otherIndex + ")";
-    }
     public int getIndex() {
         return index;
     }
@@ -90,6 +84,22 @@ public class Sequence implements WritableComparable<Sequence> {
             }
             return cmp;
         }
-
+    public String toString() {
+        StringBuilder outStr = new StringBuilder();
+        outStr.append("[ ");
+        outStr.append("index = ");
+        outStr.append(index);
+        outStr.append(", ");
+        outStr.append("length = ");
+        outStr.append(length);
+        outStr.append(", ");
+        outStr.append("otherID = ");
+        outStr.append(otherID);
+        outStr.append(", ");
+        outStr.append("otherIndex = ");
+        outStr.append(otherIndex);
+        outStr.append(" ]");
+        return outStr.toString();
+    }
 }
 

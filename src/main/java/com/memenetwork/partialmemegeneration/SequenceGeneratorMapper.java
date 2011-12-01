@@ -6,10 +6,7 @@ import java.io.IOException;
 
 public class SequenceGeneratorMapper extends
 Mapper <Text, Bucket, BucketPiece, Bucket> {
-    @Override public void setup(Context context)
-        throws IOException, InterruptedException{
-    }
-    @Override public void map(Text key, Bucket value, Context context)
+        @Override public void map(Text key, Bucket value, Context context)
         throws IOException, InterruptedException{
         int size = value.size();
         for (int ii = 0; ii < size; ii ++ ) {

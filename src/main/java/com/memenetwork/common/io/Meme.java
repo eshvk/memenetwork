@@ -15,6 +15,20 @@ public class Meme implements Writable {
       length = 0;
       startIndex = 0;
   }
+  public String toString() {
+      StringBuilder currStr = new StringBuilder();
+      currStr.append("[ ");
+      currStr.append("length = ");
+      currStr.append(length);
+      currStr.append(", ");
+      currStr.append("startIndex = ");
+      currStr.append(startIndex);
+      currStr.append(", ");
+      currStr.append("docIDs = ");
+      currStr.append(docIDs.toString());
+      currStr.append(" ]");
+      return currStr.toString();
+  }
   public void setLength(int length) {
       this.length = length;
   }

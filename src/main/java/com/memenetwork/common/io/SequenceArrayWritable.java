@@ -44,4 +44,7 @@ public class SequenceArrayWritable implements Writable {
             s.write(out);
         }
     }
+    public String toString() {
+        return array.toString();
+    }
 }

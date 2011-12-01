@@ -55,4 +55,7 @@ public class Bucket implements Writable {
             bp.write(out);
         }
     }
+    public String toString() {
+        return bucketPieces.toString();
+    }
 }

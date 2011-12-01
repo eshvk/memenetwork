@@ -21,6 +21,7 @@ public class SequenceBuilder {
         Set <BucketPiece> removals = new TreeSet <BucketPiece> ();
         if(currSourcePos != index) {
             terminateActiveSequences();
+            index = currSourcePos;
         }
         for (Sequence actS : activeSequences) {
             bp = new BucketPiece(actS.getOtherID(), actS.getOtherIndex() +

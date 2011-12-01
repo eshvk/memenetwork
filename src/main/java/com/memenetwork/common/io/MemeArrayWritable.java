@@ -43,4 +43,7 @@ public class MemeArrayWritable implements Writable {
     public void clear(){
         array.clear();
     }
+    public String toString() {
+        return array.toString();
+    }
 }

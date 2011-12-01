@@ -18,12 +18,14 @@ public class MemeDriver extends Configured implements Tool {
         String inputPath = args[0];
         String outputPath = args[1];
         String tempDir = args[2];
+        String numReduceTasks = args[3];
+        String shingleSize = args[4];
         String shingleDir = tempDir + "/shingleTable";
         String [] stgArgs = new String[4];
         stgArgs[0] = inputPath;
         stgArgs[1] = shingleDir;
-        stgArgs[2] = args[3];
-        stgArgs[3] = args[4];
+        stgArgs[2] = numReduceTasks;
+        stgArgs[3] = shingleSize;
         ShingleTableGenerator stg = new ShingleTableGenerator();
         int result = stg.run(stgArgs);
         if(result == 1) {
@@ -33,7 +35,7 @@ public class MemeDriver extends Configured implements Tool {
         String seqDir = tempDir + "/sequences";
         sgArgs[0] = shingleDir;
         sgArgs[1] = seqDir;
-        sgArgs[2] = args[3];
+        sgArgs[2] = numReduceTasks;
         SequenceGenerator sg = new SequenceGenerator();
         result = sg.run(sgArgs);
         if (result == 1) {
@@ -43,17 +45,16 @@ public class MemeDriver extends Configured implements Tool {
         String memeDir = tempDir + "/memes";
         memeArgs[0] = seqDir;
         memeArgs[1] = memeDir;
-        memeArgs[3] = args[4];
+        memeArgs[2] = shingleSize;
         MemeGenerator mg = new MemeGenerator();
         result = mg.run(memeArgs);
         if (result == 1) {
             return 1;
         }
         String [] tgArgs = new String [3];
-        String graphDir = tempDir + "/graphs";
         tgArgs[0] = memeDir;
-        tgArgs[1] = graphDir;
-        tgArgs[2] = args[3];
+        tgArgs[1] = outputPath;
+        tgArgs[2] = numReduceTasks;
         TemporalGraphGenerator tg = new TemporalGraphGenerator();
         result = tg.run(tgArgs);
         if (result == 1) {
