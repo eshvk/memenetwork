@@ -1,56 +1,23 @@
 package com.memenetwork.partialmemegeneration;
 import java.io.IOException;
-import java.util.List;
-import java.util.ArrayList;
+import java.io.StringReader;
 
 import com.memenetwork.common.io.BucketPiece;
 import com.memenetwork.common.io.Bucket;
-import com.memenetwork.common.utils.Pair;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.lucene.util.Version;
+import org.apache.lucene.analysis.standard.StandardTokenizer;
+import org.apache.lucene.analysis.shingle.ShingleFilter;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
 public class ShingleTableMapper
     extends Mapper <LongWritable, Text, Text, BucketPiece> {
     private BucketPiece bucketPiece;
     private Text shingle;
     private int shingleSize;
-    private String cleanToken(String token){
-        return token.toLowerCase().replaceAll("\\W+", "");
-    }
-    private String formShingle(String [] unigrams, int start, int length) {
-        StringBuilder shingleBuilder = new StringBuilder();
-        int ii = 0;
-        while(ii < length) {
-            shingleBuilder.append(unigrams[start + ii]).append(" ");
-            ii ++;
-        }
-        return shingleBuilder.toString().trim();
-    }
-    private List <Pair <String, Integer>>
-        generateShingles(String document, int shingleSize) {
-        String [] tokens = document.trim().split("\\s+");
-        int ii = 0;
-        List <String> cleanedTokens = new ArrayList <String> ();
-        while(ii < tokens.length) {
-            String cleanedToken = cleanToken(tokens[ii]);
-            if (cleanedToken.trim().length() > 0) {
-                cleanedTokens.add(cleanedToken.trim());
-            }
-            ii++;
-        }
-        tokens = cleanedTokens.toArray(new String [cleanedTokens.size()]);
-        List <Pair <String, Integer>> shingles = new ArrayList
-            <Pair <String, Integer>> ();
-        Pair <String, Integer> currPair;
-        for (ii = 0; (ii  + shingleSize - 1)< tokens.length; ii ++) {
-            String currNgram = formShingle(tokens, ii, shingleSize);
-            currPair = new Pair <String, Integer> (currNgram, ii);
-            shingles.add(currPair);
-        }
-        return shingles;
-        }
     @Override public void setup(Context context)
         throws IOException, InterruptedException {
         super.setup(context);
@@ -62,12 +29,21 @@ public class ShingleTableMapper
         throws IOException, InterruptedException {
         String [] tokens = value.toString().split("\t", 3);
         String docID = tokens[0];
-        List <Pair <String, Integer> > shingleData =
-            generateShingles(tokens[2], shingleSize);
-        for (Pair <String, Integer> sd : shingleData) {
-            shingle.set(sd.getFirst().trim());
-            bucketPiece.set(docID, sd.getSecond());
+        StringReader reader = new StringReader(tokens[2]);
+        ShingleFilter stream = new ShingleFilter(
+                new StandardTokenizer(Version.LUCENE_35, reader),
+                                            shingleSize, shingleSize);
+        stream.setOutputUnigrams(false);
+        CharTermAttribute termAttribute = stream.getAttribute(
+                                            CharTermAttribute.class);
+        int ii = 0;
+        while (stream.incrementToken()!= false) {
+            bucketPiece.set(docID, ii);
+            System.out.println("Shingle: " + termAttribute.toString() + "(" + ii + "," + docID + ")");
+            ii++;
+            shingle.set(termAttribute.toString());
             context.write(shingle, bucketPiece);
+            termAttribute.setEmpty();
         }
     }
 }
